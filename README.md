@@ -1,0 +1,1 @@
+/loadRegister - registration page
