@@ -20,8 +20,8 @@ app.use(usersRoute);
 // app.use("/admin", adminRoute); //routes from admin routes
 
 // this are Middleware i created
-app.use(clientError);
-app.use(serverError);
+// app.use(clientError);
+// app.use(serverError);
 
 app.listen(port, async () => {
   console.log(chalk.blue(`server is running at http:/localhost:${port}`));
