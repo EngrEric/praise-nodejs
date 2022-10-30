@@ -1,14 +1,14 @@
-const { json } = require("body-parser");
-const { securePassword, comparePassword } = require("../confiq/securePassword");
-const { User } = require("../models/usersmodels");
+const { json } = require('body-parser');
+const { securePassword, comparePassword } = require('../confiq/securePassword');
+const { User } = require('../models/usersmodels');
 
-const { getRandomString } = require("../utility/passwordToken");
-const { sendResetpEmail } = require("../utility/sendResetpEmail");
-const { sendVerifictionEmail } = require("../utility/sendVerificationEmail");
+const { getRandomString } = require('../utility/passwordToken');
+const { sendResetpEmail } = require('../utility/sendResetpEmail');
+const { sendVerifictionEmail } = require('../utility/sendVerificationEmail');
 
 const loadRegister = async (req, res) => {
   try {
-    res.status(200).render("registration");
+    res.status(200).render('registration');
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -32,11 +32,11 @@ const registerUser = async (req, res) => {
     const userData = await newUser.save();
     if (userData) {
       sendVerifictionEmail(userData.name, userData.email, userData._id);
-      res.status(201).render("registration", {
-        message: "Registration successful, please verify your email",
+      res.status(201).render('registration', {
+        message: 'Registration successful, please verify your email',
       });
     } else {
-      res.status(404).send({ message: "route not found" });
+      res.status(404).send({ message: 'route not found' });
     }
   } catch (error) {
     res.status(500).send({
@@ -46,23 +46,20 @@ const registerUser = async (req, res) => {
 };
 
 const loadLogin = async (req, res) => {
-  res.send("morning");
-  // try {
-  //   res.status(200).render("login");
-  // } catch (error) {
-  //   res.status(500).send({
-  //     message: error.message,
-  //   });
-  // }
+  try {
+    res.status(200).render('login');
+  } catch (error) {
+    res.status(500).send({
+      message: error.message,
+    });
+  }
 };
 
 // To check the password
 const loginUser = async (req, res) => {
-  console.log("loginUser");
   try {
     const email = req.body.email;
     const password = req.body.password;
-    console.log(req.body);
     const userData = await User.findOne({ email: email });
 
     if (userData) {
@@ -72,28 +69,26 @@ const loginUser = async (req, res) => {
       if (isMatched) {
         if (userData.isVerify) {
           req.session.userid = userData._id;
-          res.redirect("/home"); //if user is verified access home
+          return res.redirect('/home'); //if user is verified access home
         } else {
-          res
+          return res
             .status(404)
-            .render("login", { message: "please verify your email" });
+            .render('login', { message: 'please verify your email' });
         }
 
         //WE ARE SETTING THE SECTION
         // req.session.userid = userData._id;
         // res.redirect("/home");
       } else {
-        res
+        return res
           .status(404)
-          .render("login", { message: "email & password did not match" });
+          .render('login', { message: 'email & password did not match' });
       }
     } else {
-      res.status(404).send({ message: "user does not exist" });
+      return res.status(404).send({ message: 'user does not exist' });
     }
-
-    res.status(200).render("login");
   } catch (error) {
-    res.status(500).send({
+    return res.status(500).send({
       message: error.message,
     });
   }
@@ -103,7 +98,7 @@ const loadHome = async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.session.userid }); //we use session id to find the user
     // console.log(user);
-    res.status(200).render("home", { user: user });
+    res.status(200).render('home', { user: user });
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -115,7 +110,7 @@ const logOutUser = async (req, res) => {
   try {
     // to destroy the session we use
     req.session.destroy();
-    res.status(200).redirect("/login");
+    res.status(200).redirect('/login');
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -136,9 +131,9 @@ const verifyEmail = async (req, res) => {
       }
     );
     if (userUpdated) {
-      res.render("verification", { message: "verification successful" });
+      res.render('verification', { message: 'verification successful' });
     } else {
-      res.render("verification", { message: "verification unsuccessful" });
+      res.render('verification', { message: 'verification unsuccessful' });
     }
   } catch (error) {
     res.status(500).send({
@@ -149,7 +144,7 @@ const verifyEmail = async (req, res) => {
 
 const loadResendVerification = async (req, res) => {
   try {
-    res.render("resend-verification");
+    res.render('resend-verification');
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -164,18 +159,18 @@ const resendVerificationLink = async (req, res) => {
     const userData = await User.findOne({ email: email });
     if (userData) {
       if (userData.isVerify) {
-        res.render("resend-verification", {
-          message: "user is already verified",
+        res.render('resend-verification', {
+          message: 'user is already verified',
         });
       } else {
         sendVerifictionEmail(userData.name, userData.email, userData._id);
-        res.render("resend-verification", {
-          message: "Verification link has been sent you your email",
+        res.render('resend-verification', {
+          message: 'Verification link has been sent you your email',
         });
       }
     } else {
-      res.render("resend-verification", {
-        message: "this email does not exist",
+      res.render('resend-verification', {
+        message: 'this email does not exist',
       });
     }
   } catch (error) {
@@ -187,7 +182,7 @@ const resendVerificationLink = async (req, res) => {
 
 const loadForgetPassword = async (req, res) => {
   try {
-    res.render("forget-password");
+    res.render('forget-password');
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -216,16 +211,16 @@ const forgetPassword = async (req, res) => {
           userData.id,
           randomString
         );
-        res.render("forget-password", {
-          message: "Please check your email for reseting password",
+        res.render('forget-password', {
+          message: 'Please check your email for reseting password',
         });
       } else {
-        res.render("forget-password", {
-          message: "Verify your email address please",
+        res.render('forget-password', {
+          message: 'Verify your email address please',
         });
       }
     } else {
-      res.render("forget-password", { message: "email does not exist" });
+      res.render('forget-password', { message: 'email does not exist' });
     }
   } catch (error) {
     res.status(500).send({
@@ -239,7 +234,7 @@ const loadResetPassword = async (req, res) => {
     const token = req.query.token;
     const userData = await User.findOne({ token: token });
     if (userData) {
-      res.render("reset-password", { userId: userData._id });
+      res.render('reset-password', { userId: userData._id });
     }
   } catch (error) {
     res.status(500).send({
@@ -260,12 +255,12 @@ const resetPassword = async (req, res) => {
         $set: {
           password: hashPassword,
           //  we return token to default for security
-          token: "",
+          token: '',
         },
       }
     );
 
-    res.redirect("/login");
+    res.redirect('/login');
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -278,9 +273,9 @@ const loadEditProfil = async (req, res) => {
     const id = req.query.id;
     const user = await User.findById({ _id: id });
     if (user) {
-      res.status(200).render("edit", { user: user });
+      res.status(200).render('edit', { user: user });
     } else {
-      res.redirect("/home");
+      res.redirect('/home');
     }
   } catch (error) {
     res.status(500).send({
@@ -315,7 +310,7 @@ const editUserProfil = async (req, res) => {
         }
       );
     }
-    res.redirect("/home");
+    res.redirect('/home');
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -328,9 +323,9 @@ const loadDeleteUser = async (req, res) => {
     const id = req.params._id;
     const user = await User.findByIdAndDelete({ _id: id });
     if (user) {
-      res.status(200).render("delete", { user: user });
+      res.status(200).render('delete', { user: user });
     } else {
-      res.redirect("/home");
+      res.redirect('/home');
     }
   } catch (error) {
     res.status(500).send({
@@ -346,10 +341,10 @@ const deleteUser = async (req, res) => {
     // const id = req.query.id;
     const user = await User.findByIdAndDelete({ _id: id });
     if (user) {
-      res.json("deleted succeessfully");
-      res.redirect("/home");
+      res.json('deleted succeessfully');
+      res.redirect('/home');
     } else {
-      res.status(500).send("user not found");
+      res.status(500).send('user not found');
     }
 
     console.log(User);
